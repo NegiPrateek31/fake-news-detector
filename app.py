@@ -16,6 +16,56 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, precision_recall_fscore_support
 
+# -------------------------------
+# Dataset Loader with options
+# -------------------------------
+def load_dataset(source="Google Drive", uploaded_true=None, uploaded_fake=None):
+    try:
+        if source == "Google Drive":
+            # 🔹 Replace with your actual Google Drive File IDs
+
+
+            url_true = "https://drive.google.com/file/d/1l_HvTWW5fI9M8ErxVy1wVNMgNuHsrIhc/view?usp=drive_link"
+            url_fake = "https://drive.google.com/file/d/1t4AeziB3I7PAcA-e7zOA7YenT9UyAhOG/view?usp=drive_link"
+
+            df_true = pd.read_csv(url_true)
+            df_fake = pd.read_csv(url_fake)
+
+            st.success("✅ Full dataset loaded from Google Drive")
+
+        elif source == "GitHub Sample":
+            # 🔹 Replace with your actual GitHub repo links
+            url_true = "https://github.com/NegiPrateek31/fake-news-detector/blob/main/True_sample.csv"
+            url_fake = "https://github.com/NegiPrateek31/fake-news-detector/blob/main/Fake_sample.csv"
+
+            df_true = pd.read_csv(url_true)
+            df_fake = pd.read_csv(url_fake)
+
+            st.info("⚡ Using sample dataset from GitHub")
+
+        elif source == "Upload CSV":
+            if uploaded_true is not None and uploaded_fake is not None:
+                df_true = pd.read_csv(uploaded_true)
+                df_fake = pd.read_csv(uploaded_fake)
+                st.success("✅ Dataset loaded from uploaded files")
+            else:
+                st.warning("⚠️ Please upload both True.csv and Fake.csv")
+                return pd.DataFrame()
+
+        else:
+            st.error("❌ Invalid dataset source")
+            return pd.DataFrame()
+
+        # Add labels
+        df_true['label'] = 1
+        df_fake['label'] = 0
+        return pd.concat([df_true, df_fake], ignore_index=True)
+
+    except Exception as e:
+        st.error(f"⚠️ Failed to load dataset: {e}")
+        return pd.DataFrame()
+
+
 # ------------------- Config -------------------
 st.set_page_config(page_title="Fake News Detection", layout="wide")
 st.title("📰 Fake News Detection Using Machine Learning")
@@ -207,3 +257,24 @@ elif choice == "Predict":
                 if hasattr(pipe.named_steps["clf"], "predict_proba"):
                     proba = pipe.predict_proba([basic_clean(text)])[0,1]
                     st.write(f"Probability of Real: {proba:.3f}")
+
+# ---- Dataset Page Logic ----
+
+st.subheader("📂 Dataset Loader")
+
+dataset_choice = st.selectbox(
+    "Choose Dataset Source:",
+    ["Google Drive", "GitHub Sample", "Upload CSV"]
+)
+
+uploaded_true, uploaded_fake = None, None
+if dataset_choice == "Upload CSV":
+    uploaded_true = st.file_uploader("Upload True.csv", type=["csv"])
+    uploaded_fake = st.file_uploader("Upload Fake.csv", type=["csv"])
+
+df = load_dataset(dataset_choice, uploaded_true, uploaded_fake)
+if not df.empty:
+    st.write("✅ Dataset Loaded Successfully")
+    st.write(df.head())
+else:
+    st.warning("⚠️ No dataset loaded. Please check your selection.")
