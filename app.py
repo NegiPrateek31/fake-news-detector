@@ -33,10 +33,11 @@ def load_dataset(source="Google Drive", uploaded_true=None, uploaded_fake=None):
     try:
         if source == "Google Drive":
             # 🔹 Replace with your actual Google Drive File IDs
+            file_id_true = "1l_HvTWW5fI9M8ErxVy1wVNMgNuHsrIhc"
+            file_id_fake = "Y1t4AeziB3I7PAcA-e7zOA7YenT9UyAhOG"
 
-
-            url_true = "https://drive.google.com/file/d/1l_HvTWW5fI9M8ErxVy1wVNMgNuHsrIhc/view?usp=drive_link"
-            url_fake = "https://drive.google.com/file/d/1t4AeziB3I7PAcA-e7zOA7YenT9UyAhOG/view?usp=drive_link"
+            url_true = f"https://drive.google.com/uc?id={file_id_true}"
+            url_fake = f"https://drive.google.com/uc?id={file_id_fake}"
 
             df_true = smart_read_csv(url_true)
             df_fake = smart_read_csv(url_fake)
