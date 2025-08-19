@@ -21,12 +21,13 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 # -------------------------------
 def smart_read_csv(path_or_url, uploaded=False):
     try:
-        return smart_read_csv(path_or_url, encoding="utf-8", sep=",", on_bad_lines="skip")
+        return pd.read_csv(path_or_url, sep=",", on_bad_lines="skip", encoding="utf-8")
     except Exception:
         try:
-            return smart_read_csv(path_or_url, encoding="utf-8", sep=";", on_bad_lines="skip")
+            return pd.read_csv(path_or_url, sep=";", on_bad_lines="skip", encoding="utf-8")
         except Exception:
-            return smart_read_csv(path_or_url, encoding="utf-8", sep="\t", on_bad_lines="skip")
+            return pd.read_csv(path_or_url, sep="\t", on_bad_lines="skip", encoding="utf-8")
+
 
 def load_dataset(source="Google Drive", uploaded_true=None, uploaded_fake=None):
     try:
@@ -54,8 +55,8 @@ def load_dataset(source="Google Drive", uploaded_true=None, uploaded_fake=None):
 
         elif source == "Upload CSV":
             if uploaded_true is not None and uploaded_fake is not None:
-                df_true = smart_read_csv(uploaded_true,uploaded=True)
-                df_fake = smart_read_csv(uploaded_fake,uploaded=True)
+                df_true = smart_read_csv(uploaded_true, uploaded=True)
+                df_fake = smart_read_csv(uploaded_fake, uploaded=True)
                 st.success("✅ Dataset loaded from uploaded files")
             else:
                 st.warning("⚠️ Please upload both True.csv and Fake.csv")
