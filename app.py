@@ -19,6 +19,15 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 # -------------------------------
 # Dataset Loader with options
 # -------------------------------
+def smart_read_csv(path_or_url, uploaded=False):
+    try:
+        return smart_read_csv(path_or_url, encoding="utf-8", sep=",", on_bad_lines="skip")
+    except Exception:
+        try:
+            return smart_read_csv(path_or_url, encoding="utf-8", sep=";", on_bad_lines="skip")
+        except Exception:
+            return smart_read_csv(path_or_url, encoding="utf-8", sep="\t", on_bad_lines="skip")
+
 def load_dataset(source="Google Drive", uploaded_true=None, uploaded_fake=None):
     try:
         if source == "Google Drive":
@@ -28,8 +37,8 @@ def load_dataset(source="Google Drive", uploaded_true=None, uploaded_fake=None):
             url_true = "https://drive.google.com/file/d/1l_HvTWW5fI9M8ErxVy1wVNMgNuHsrIhc/view?usp=drive_link"
             url_fake = "https://drive.google.com/file/d/1t4AeziB3I7PAcA-e7zOA7YenT9UyAhOG/view?usp=drive_link"
 
-            df_true = pd.read_csv(url_true)
-            df_fake = pd.read_csv(url_fake)
+            df_true = smart_read_csv(url_true)
+            df_fake = smart_read_csv(url_fake)
 
             st.success("✅ Full dataset loaded from Google Drive")
 
@@ -38,15 +47,15 @@ def load_dataset(source="Google Drive", uploaded_true=None, uploaded_fake=None):
             url_true = "https://github.com/NegiPrateek31/fake-news-detector/blob/main/True_sample.csv"
             url_fake = "https://github.com/NegiPrateek31/fake-news-detector/blob/main/Fake_sample.csv"
 
-            df_true = pd.read_csv(url_true)
-            df_fake = pd.read_csv(url_fake)
+            df_true = smart_read_csv(url_true)
+            df_fake = smart_read_csv(url_fake)
 
             st.info("⚡ Using sample dataset from GitHub")
 
         elif source == "Upload CSV":
             if uploaded_true is not None and uploaded_fake is not None:
-                df_true = pd.read_csv(uploaded_true)
-                df_fake = pd.read_csv(uploaded_fake)
+                df_true = smart_read_csv(uploaded_true,uploaded=True)
+                df_fake = smart_read_csv(uploaded_fake,uploaded=True)
                 st.success("✅ Dataset loaded from uploaded files")
             else:
                 st.warning("⚠️ Please upload both True.csv and Fake.csv")
@@ -100,8 +109,8 @@ def load_from_folder():
     p_fake = Path(DATA_DIR) / "Fake.csv"
     p_single = Path(DATA_DIR) / "news.csv"
     if p_true.exists() and p_fake.exists():
-        df_true = pd.read_csv(p_true, encoding="utf-8")
-        df_fake = pd.read_csv(p_fake, encoding="utf-8")
+        df_true = smart_read_csv(p_true, encoding="utf-8")
+        df_fake = smart_read_csv(p_fake, encoding="utf-8")
         df_true[LABEL] = 1
         df_fake[LABEL] = 0
         df = pd.concat([df_true, df_fake], ignore_index=True)
@@ -110,7 +119,7 @@ def load_from_folder():
         if not text_cols:
             text_cols = [c for c in df.columns if c not in [LABEL, "subject", "date"]]
     elif p_single.exists():
-        df = pd.read_csv(p_single, encoding="utf-8")
+        df = smart_read_csv(p_single, encoding="utf-8")
         if LABEL not in df.columns:
             st.error("news.csv must contain a 'label' column (1=real, 0=fake).")
             return None
@@ -144,10 +153,10 @@ if choice == "Dataset":
     uploaded = st.file_uploader("Upload a CSV (must contain a label column 1=real,0=fake)", type=["csv"])
     if uploaded is not None:
         try:
-            df_up = pd.read_csv(uploaded, encoding="utf-8")
+            df_up = smart_read_csv(uploaded, encoding="utf-8")
         except Exception:
             uploaded.seek(0)
-            df_up = pd.read_csv(uploaded, encoding="ISO-8859-1")
+            df_up = smart_read_csv(uploaded, encoding="ISO-8859-1")
         if LABEL not in df_up.columns:
             st.error("Uploaded CSV must include a 'label' column (1=real,0=fake).")
         else:
