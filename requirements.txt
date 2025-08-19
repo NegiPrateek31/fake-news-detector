@@ -1,4 +1,9 @@
 streamlit
-pandas
-scikit-learn
 numpy
+pandas
+matplotlib
+seaborn
+plotly
+wordcloud
+scikit-learn
+joblib
